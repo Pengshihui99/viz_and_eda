@@ -171,3 +171,82 @@ ggplot(weather_df, aes(x = tmin, y = tmax)) +
 - 3rd query
   - **`se = FALSE`**: get rid of the standard error bars around the
     smooth line.
+
+## Plot with facets
+
+if i think there are still too much stuff happen in one panel:
+
+``` r
+ggplot(weather_df, aes(x = tmin, y = tmax, color = name)) +
+  geom_point(alpha = .3) +
+  geom_smooth() +
+  facet_grid(. ~ name)
+```
+
+    ## `geom_smooth()` using method = 'loess' and formula = 'y ~ x'
+
+    ## Warning: Removed 17 rows containing non-finite values (`stat_smooth()`).
+
+    ## Warning: Removed 17 rows containing missing values (`geom_point()`).
+
+![](visualization_part_1_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
+``` r
+ggplot(weather_df, aes(x = tmin, y = tmax, color = name)) +
+  geom_point(alpha = .3) +
+  geom_smooth() +
+  facet_grid(name ~ .)
+```
+
+    ## `geom_smooth()` using method = 'loess' and formula = 'y ~ x'
+
+    ## Warning: Removed 17 rows containing non-finite values (`stat_smooth()`).
+    ## Removed 17 rows containing missing values (`geom_point()`).
+
+![](visualization_part_1_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
+\* 1st \* **`. ~ name`**: (everything –\> the dot) facet it till
+everything is in 1 row, then get separate cols according to the name
+variable. (names in col) \* 2nd \* switch ‘name’ and ‘.’, then get
+separate rows and 1 col (contents are the same) (names in rows) \* the
+name variable would be in alphabetical order by default if we dont
+define the order.
+
+### let’s try a diff plot.
+
+``` r
+ggplot(weather_df, aes(x = date, y = tmax, color = name)) +
+  geom_point(aes(size = prcp, alpha = .3)) +
+  geom_smooth() +
+  facet_grid(. ~ name)
+```
+
+    ## `geom_smooth()` using method = 'loess' and formula = 'y ~ x'
+
+    ## Warning: Removed 17 rows containing non-finite values (`stat_smooth()`).
+
+    ## Warning: Removed 19 rows containing missing values (`geom_point()`).
+
+![](visualization_part_1_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+\* **`size = prcp`**: set the size of points in the scatterplot using
+precipitation variable. higher prcps will get bigger points.
+
+### let’s try assigning a specific color
+
+``` r
+weather_df |> 
+  filter(name == 'CentralPark_NY') |> 
+  rename(Date = date) |> 
+  ggplot(aes(x = Date, y = tmax)) +
+  geom_point(color = 'blue', size = .3)
+```
+
+![](visualization_part_1_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+\* `color = 'blue'` need to be put inside the geom\_ where it plans to
+apply to rather than being just a general ggplot option (that is, being
+put inside ggplot() cannot assign specific color. inside the aes() in
+the ggplot(), we take variables in the ds and map them onto colors. if
+doing this, r thinks there suppose to be a var called ‘blue’ inside the
+ds and then it color the points using default ggplot color.) \*
+`size = .3` can be used to manually adjust point size. \* use `rename`,
+we can relable the variable. but we have easy way to do this in next
+class.

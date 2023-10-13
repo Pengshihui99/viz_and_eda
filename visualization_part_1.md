@@ -114,3 +114,60 @@ plot. if we want more gems on top of this, we can also use
 the plot + name it
 
 ## Fancy plot
+
+``` r
+ggplot(weather_df, aes(x = tmin, y = tmax, color = name)) + 
+  geom_point() +
+  geom_smooth()
+```
+
+    ## `geom_smooth()` using method = 'loess' and formula = 'y ~ x'
+
+    ## Warning: Removed 17 rows containing non-finite values (`stat_smooth()`).
+
+    ## Warning: Removed 17 rows containing missing values (`geom_point()`).
+
+![](visualization_part_1_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+``` r
+ggplot(weather_df, aes(x = tmin, y = tmax)) + 
+  geom_point(aes(color = name, alpha = 0.3)) +
+  geom_smooth()
+```
+
+    ## `geom_smooth()` using method = 'gam' and formula = 'y ~ s(x, bs = "cs")'
+
+    ## Warning: Removed 17 rows containing non-finite values (`stat_smooth()`).
+    ## Removed 17 rows containing missing values (`geom_point()`).
+
+![](visualization_part_1_files/figure-gfm/unnamed-chunk-6-2.png)<!-- -->
+
+``` r
+ggplot(weather_df, aes(x = tmin, y = tmax)) +
+  geom_smooth(se = FALSE)
+```
+
+    ## `geom_smooth()` using method = 'gam' and formula = 'y ~ s(x, bs = "cs")'
+
+    ## Warning: Removed 17 rows containing non-finite values (`stat_smooth()`).
+
+![](visualization_part_1_files/figure-gfm/unnamed-chunk-6-3.png)<!-- -->
+
+- 1st query
+  - **`color = name`**: for each name (a variable), use a distinct
+    color.
+  - **`geom_smooth()`**: it fits a smooth line in the plot w our defined
+    x and y
+- 2nd query
+  - only 1 smooth line – we can define some aesthetics for particular
+    parts of our plot
+  - in 1st query, 3 smooth lines – the color aesthetic is defined
+    everywhere for the plot, so is applied to all the `geom_`, so both
+    scatterplot and smooth line part would be colored by name.
+  - **`alpha = 0.3`**: alpha blending/shading to make plot points a bot
+    transparent. ONLY in `geom_point`. alpha = 0.3 means the points are
+    70% opaque and 30% solid. Then we can see everything without blocked
+    by points.
+- 3rd query
+  - **`se = FALSE`**: get rid of the standard error bars around the
+    smooth line.

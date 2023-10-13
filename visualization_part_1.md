@@ -115,6 +115,8 @@ the plot + name it
 
 ## Fancy plot
 
+### colors, alpha blending, no SE
+
 ``` r
 ggplot(weather_df, aes(x = tmin, y = tmax, color = name)) + 
   geom_point() +
@@ -172,7 +174,7 @@ ggplot(weather_df, aes(x = tmin, y = tmax)) +
   - **`se = FALSE`**: get rid of the standard error bars around the
     smooth line.
 
-## Plot with facets
+### Plot with facets
 
 if i think there are still too much stuff happen in one panel:
 
@@ -237,7 +239,7 @@ weather_df |>
   filter(name == 'CentralPark_NY') |> 
   rename(Date = date) |> 
   ggplot(aes(x = Date, y = tmax)) +
-  geom_point(color = 'blue', size = .3)
+  geom_point(color = 'blue', size = .3, alpha = .7)
 ```
 
 ![](visualization_part_1_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
@@ -250,3 +252,127 @@ ds and then it color the points using default ggplot color.) \*
 `size = .3` can be used to manually adjust point size. \* use `rename`,
 we can relable the variable. but we have easy way to do this in next
 class.
+
+### hex plot w `geom_hex`
+
+``` r
+weather_df |> 
+  ggplot(aes(x = tmin, y = tmax)) +
+  geom_hex()
+```
+
+    ## Warning: Removed 17 rows containing non-finite values (`stat_binhex()`).
+
+![](visualization_part_1_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+\* if we have ds much larger ds, we can use **`geom_hex`** to get
+something like a density plot. this is like a heat map. eg. if we have
+100,000 data, putting all individual points on a plot will be a wreck.
+But use geom_hex, we can see where the data exists.
+
+### line plots
+
+``` r
+weather_df |> 
+  filter(name == "Molokai_HI") |> 
+  ggplot(aes(x = date, y = tmax)) +
+  geom_line()
+```
+
+![](visualization_part_1_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+\* doing like connect the dots, in the order of data in our ds. \* we
+can use geom_point and geom_line together.
+
+## univariate plotting
+
+Sometime we just want to understand/look 1 variable at 1 time.
+
+### start w histogram w `geom_histogram()`
+
+``` r
+ggplot(weather_df, aes(x = tmax, color = name)) +
+  geom_histogram()
+```
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+    ## Warning: Removed 17 rows containing non-finite values (`stat_bin()`).
+
+![](visualization_part_1_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+``` r
+ggplot(weather_df, aes(x = tmax, fill = name)) +
+  geom_histogram(position = 'dodge', binwidth = 2)
+```
+
+    ## Warning: Removed 17 rows containing non-finite values (`stat_bin()`).
+
+![](visualization_part_1_files/figure-gfm/unnamed-chunk-12-2.png)<!-- -->
+\* if want the color to fill in the histogram, switch `color = name` to
+`fill = name` \* **`binwidth`**: define the width of the bin. \* in 1st,
+histogram stacks up each other. to avoid this, use
+**`position = 'dodge`** inside geom_histogram (2nd). \* but this is not
+easy to understand the distribution just use histogram. so next step:
+
+### let’s use a density plot w `geom_density()`
+
+``` r
+ggplot(weather_df, aes(x = tmax, fill = name)) +
+  geom_density(alpha = 0.3, adjust = 0.5)
+```
+
+    ## Warning: Removed 17 rows containing non-finite values (`stat_density()`).
+
+![](visualization_part_1_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+\* `adjust =` is used to adjust the smoothness. The default is good, but
+double check w this can be helpful sometimes.
+
+### using boxplot w `geom_boxplot()`
+
+``` r
+ggplot(weather_df, aes(y = tmax, x = name)) +
+  geom_boxplot()
+```
+
+    ## Warning: Removed 17 rows containing non-finite values (`stat_boxplot()`).
+
+![](visualization_part_1_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+
+### violin plot w `geom_violin()`
+
+``` r
+ggplot(weather_df, aes(y = tmax, x = name)) +
+  geom_violin() +
+  stat_summary(fun = 'median', color = 'blue')
+```
+
+    ## Warning: Removed 17 rows containing non-finite values (`stat_ydensity()`).
+
+    ## Warning: Removed 17 rows containing non-finite values (`stat_summary()`).
+
+    ## Warning: Removed 3 rows containing missing values (`geom_segment()`).
+
+![](visualization_part_1_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+\* like mirroring the density plots. provide w same info. \* but if we
+get variable w lots of categories, eg. 50 names here, then difficult to
+understand w density plot, and now violin plot might be useful as it
+separate each cate of this variable. \*
+`stat_summary(fun = 'median', color = 'blue')`: create a dot stands for
+median for each violin polt, and color the dots with blue
+
+### ridge plot w `geom_density_ridges()`
+
+``` r
+ggplot(weather_df, aes(x = tmax, y = name)) +
+  geom_density_ridges()
+```
+
+    ## Picking joint bandwidth of 1.54
+
+    ## Warning: Removed 17 rows containing non-finite values
+    ## (`stat_density_ridges()`).
+
+![](visualization_part_1_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+\* create separate densities, but will stack on top of each other
+vertically rather than all overlapping. useful when we have lots of cate
+in a variable - easy way to understand the density of dist of a var
+across lots of diff cates.

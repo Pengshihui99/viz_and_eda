@@ -4,10 +4,18 @@ author: "Shihui Peng"
 date: "2023-10-12"
 output: github_document
 ---
-```{r, message=FALSE, echo=FALSE}
+```{r, message=FALSE}
 library(tidyverse)
 library(ggridges)
+
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
 ```
+* we can do this here on the top of the code, or we can do when we save our plot (at the end of this rmd). 
+  * **`out.width or out.height`**: control the size of the figure inserted into your document. I like to have a little padding around the sides of my figures, so I set out.width = "90%".
 
 # Get the data for plotting 
 ```{r}
@@ -199,3 +207,26 @@ ggplot(weather_df, aes(x = tmax, y = name)) +
 ```
 * create separate densities, but will stack on top of each other vertically rather than all overlapping. useful when we have lots of cate in a variable - easy way to understand the density of dist of a var across lots of diff cates.
 
+# saving and embedding plots
+```{r}
+ggp_weather = 
+  weather_df |> 
+  ggplot(aes(x = tmin, y = tmax)) +
+  geom_point()
+
+ggp_weather
+
+ggsave("results/ggp_weather.pdf", ggp_weather)
+```
+* have a separate new directory where i want to save my plot (create a folder in the folder of this r proj). i name it as "results".
+* 1st - save the plot & 2nd - ask r to print the plot & 3nd - embed the plot (here into a pdf file).
+
+```{r, fig.width=12, fig.height=12}
+ggp_weather
+```
+* use `fig.width/.height =` to change the fonts
+
+```{r, fig.width=6, fig.asp=0.6}
+ggp_weather
+```
+* use `fig.asp=` to adjust the figure aspect ratio

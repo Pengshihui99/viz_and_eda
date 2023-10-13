@@ -3,6 +3,23 @@ Visualization part 1
 Shihui Peng
 2023-10-12
 
+``` r
+library(tidyverse)
+library(ggridges)
+
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
+```
+
+- we can do this here on the top of the code, or we can do when we save
+  our plot (at the end of this rmd).
+  - **`out.width or out.height`**: control the size of the figure
+    inserted into your document. I like to have a little padding around
+    the sides of my figures, so I set out.width = “90%”.
+
 # Get the data for plotting
 
 ``` r
@@ -65,7 +82,7 @@ ggplot(weather_df, aes(x = tmin, y = tmax)) + geom_point()
 
     ## Warning: Removed 17 rows containing missing values (`geom_point()`).
 
-![](visualization_part_1_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+<img src="visualization_part_1_files/figure-gfm/unnamed-chunk-3-1.png" width="90%" />
 
 - how we say to ggplot?
   - 1st: tell which dataset to be used.
@@ -89,7 +106,7 @@ weather_df |>
   ggplot(aes(x = tmin, y = tmax)) + geom_point()
 ```
 
-![](visualization_part_1_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+<img src="visualization_part_1_files/figure-gfm/unnamed-chunk-4-1.png" width="90%" />
 \* using pipes makes things easy when we want to use stuff like
 `filter`. \* here we left only w the NY dataset, but we can also filter
 based on year or other stuff. With pipes, we don’t need to create
@@ -107,7 +124,7 @@ ggp_nyc_weather =
 ggp_nyc_weather
 ```
 
-![](visualization_part_1_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+<img src="visualization_part_1_files/figure-gfm/unnamed-chunk-5-1.png" width="90%" />
 \* do the 1st part and then do `ggp_nyc_weather` to print and save the
 plot. if we want more gems on top of this, we can also use
 `ggp_nyc_weather + blablabla` to be more condense. So, save it = draw
@@ -129,7 +146,7 @@ ggplot(weather_df, aes(x = tmin, y = tmax, color = name)) +
 
     ## Warning: Removed 17 rows containing missing values (`geom_point()`).
 
-![](visualization_part_1_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+<img src="visualization_part_1_files/figure-gfm/unnamed-chunk-6-1.png" width="90%" />
 
 ``` r
 ggplot(weather_df, aes(x = tmin, y = tmax)) + 
@@ -142,7 +159,7 @@ ggplot(weather_df, aes(x = tmin, y = tmax)) +
     ## Warning: Removed 17 rows containing non-finite values (`stat_smooth()`).
     ## Removed 17 rows containing missing values (`geom_point()`).
 
-![](visualization_part_1_files/figure-gfm/unnamed-chunk-6-2.png)<!-- -->
+<img src="visualization_part_1_files/figure-gfm/unnamed-chunk-6-2.png" width="90%" />
 
 ``` r
 ggplot(weather_df, aes(x = tmin, y = tmax)) +
@@ -153,7 +170,7 @@ ggplot(weather_df, aes(x = tmin, y = tmax)) +
 
     ## Warning: Removed 17 rows containing non-finite values (`stat_smooth()`).
 
-![](visualization_part_1_files/figure-gfm/unnamed-chunk-6-3.png)<!-- -->
+<img src="visualization_part_1_files/figure-gfm/unnamed-chunk-6-3.png" width="90%" />
 
 - 1st query
   - **`color = name`**: for each name (a variable), use a distinct
@@ -191,7 +208,7 @@ ggplot(weather_df, aes(x = tmin, y = tmax, color = name)) +
 
     ## Warning: Removed 17 rows containing missing values (`geom_point()`).
 
-![](visualization_part_1_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+<img src="visualization_part_1_files/figure-gfm/unnamed-chunk-7-1.png" width="90%" />
 
 ``` r
 ggplot(weather_df, aes(x = tmin, y = tmax, color = name)) +
@@ -205,7 +222,7 @@ ggplot(weather_df, aes(x = tmin, y = tmax, color = name)) +
     ## Warning: Removed 17 rows containing non-finite values (`stat_smooth()`).
     ## Removed 17 rows containing missing values (`geom_point()`).
 
-![](visualization_part_1_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
+<img src="visualization_part_1_files/figure-gfm/unnamed-chunk-7-2.png" width="90%" />
 \* 1st \* **`. ~ name`**: (everything –\> the dot) facet it till
 everything is in 1 row, then get separate cols according to the name
 variable. (names in col) \* 2nd \* switch ‘name’ and ‘.’, then get
@@ -228,7 +245,7 @@ ggplot(weather_df, aes(x = date, y = tmax, color = name)) +
 
     ## Warning: Removed 19 rows containing missing values (`geom_point()`).
 
-![](visualization_part_1_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+<img src="visualization_part_1_files/figure-gfm/unnamed-chunk-8-1.png" width="90%" />
 \* **`size = prcp`**: set the size of points in the scatterplot using
 precipitation variable. higher prcps will get bigger points.
 
@@ -242,7 +259,7 @@ weather_df |>
   geom_point(color = 'blue', size = .3, alpha = .7)
 ```
 
-![](visualization_part_1_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+<img src="visualization_part_1_files/figure-gfm/unnamed-chunk-9-1.png" width="90%" />
 \* `color = 'blue'` need to be put inside the geom\_ where it plans to
 apply to rather than being just a general ggplot option (that is, being
 put inside ggplot() cannot assign specific color. inside the aes() in
@@ -263,7 +280,7 @@ weather_df |>
 
     ## Warning: Removed 17 rows containing non-finite values (`stat_binhex()`).
 
-![](visualization_part_1_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+<img src="visualization_part_1_files/figure-gfm/unnamed-chunk-10-1.png" width="90%" />
 \* if we have ds much larger ds, we can use **`geom_hex`** to get
 something like a density plot. this is like a heat map. eg. if we have
 100,000 data, putting all individual points on a plot will be a wreck.
@@ -278,7 +295,7 @@ weather_df |>
   geom_line()
 ```
 
-![](visualization_part_1_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+<img src="visualization_part_1_files/figure-gfm/unnamed-chunk-11-1.png" width="90%" />
 \* doing like connect the dots, in the order of data in our ds. \* we
 can use geom_point and geom_line together.
 
@@ -297,7 +314,7 @@ ggplot(weather_df, aes(x = tmax, color = name)) +
 
     ## Warning: Removed 17 rows containing non-finite values (`stat_bin()`).
 
-![](visualization_part_1_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+<img src="visualization_part_1_files/figure-gfm/unnamed-chunk-12-1.png" width="90%" />
 
 ``` r
 ggplot(weather_df, aes(x = tmax, fill = name)) +
@@ -306,7 +323,7 @@ ggplot(weather_df, aes(x = tmax, fill = name)) +
 
     ## Warning: Removed 17 rows containing non-finite values (`stat_bin()`).
 
-![](visualization_part_1_files/figure-gfm/unnamed-chunk-12-2.png)<!-- -->
+<img src="visualization_part_1_files/figure-gfm/unnamed-chunk-12-2.png" width="90%" />
 \* if want the color to fill in the histogram, switch `color = name` to
 `fill = name` \* **`binwidth`**: define the width of the bin. \* in 1st,
 histogram stacks up each other. to avoid this, use
@@ -322,7 +339,7 @@ ggplot(weather_df, aes(x = tmax, fill = name)) +
 
     ## Warning: Removed 17 rows containing non-finite values (`stat_density()`).
 
-![](visualization_part_1_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+<img src="visualization_part_1_files/figure-gfm/unnamed-chunk-13-1.png" width="90%" />
 \* `adjust =` is used to adjust the smoothness. The default is good, but
 double check w this can be helpful sometimes.
 
@@ -335,7 +352,7 @@ ggplot(weather_df, aes(y = tmax, x = name)) +
 
     ## Warning: Removed 17 rows containing non-finite values (`stat_boxplot()`).
 
-![](visualization_part_1_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+<img src="visualization_part_1_files/figure-gfm/unnamed-chunk-14-1.png" width="90%" />
 
 ### violin plot w `geom_violin()`
 
@@ -351,7 +368,7 @@ ggplot(weather_df, aes(y = tmax, x = name)) +
 
     ## Warning: Removed 3 rows containing missing values (`geom_segment()`).
 
-![](visualization_part_1_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+<img src="visualization_part_1_files/figure-gfm/unnamed-chunk-15-1.png" width="90%" />
 \* like mirroring the density plots. provide w same info. \* but if we
 get variable w lots of categories, eg. 50 names here, then difficult to
 understand w density plot, and now violin plot might be useful as it
@@ -371,8 +388,54 @@ ggplot(weather_df, aes(x = tmax, y = name)) +
     ## Warning: Removed 17 rows containing non-finite values
     ## (`stat_density_ridges()`).
 
-![](visualization_part_1_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+<img src="visualization_part_1_files/figure-gfm/unnamed-chunk-16-1.png" width="90%" />
 \* create separate densities, but will stack on top of each other
 vertically rather than all overlapping. useful when we have lots of cate
 in a variable - easy way to understand the density of dist of a var
 across lots of diff cates.
+
+# saving and embedding plots
+
+``` r
+ggp_weather = 
+  weather_df |> 
+  ggplot(aes(x = tmin, y = tmax)) +
+  geom_point()
+
+ggp_weather
+```
+
+    ## Warning: Removed 17 rows containing missing values (`geom_point()`).
+
+<img src="visualization_part_1_files/figure-gfm/unnamed-chunk-17-1.png" width="90%" />
+
+``` r
+ggsave("results/ggp_weather.pdf", ggp_weather)
+```
+
+    ## Saving 6 x 3.6 in image
+
+    ## Warning: Removed 17 rows containing missing values (`geom_point()`).
+
+- have a separate new directory where i want to save my plot (create a
+  folder in the folder of this r proj). i name it as “results”.
+- 1st - save the plot & 2nd - ask r to print the plot & 3nd - embed the
+  plot (here into a pdf file).
+
+``` r
+ggp_weather
+```
+
+    ## Warning: Removed 17 rows containing missing values (`geom_point()`).
+
+<img src="visualization_part_1_files/figure-gfm/unnamed-chunk-18-1.png" width="90%" />
+\* use `fig.width/.height =` to change the fonts
+
+``` r
+ggp_weather
+```
+
+    ## Warning: Removed 17 rows containing missing values (`geom_point()`).
+
+<img src="visualization_part_1_files/figure-gfm/unnamed-chunk-19-1.png" width="90%" />
+\* use `fig.asp=` to adjust the figure aspect ratio

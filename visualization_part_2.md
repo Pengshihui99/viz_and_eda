@@ -5,6 +5,7 @@ Shihui Peng
 
 ``` r
 library(tidyverse)
+library(patchwork)
 
 knitr::opts_chunk$set(
   fig.width = 6,

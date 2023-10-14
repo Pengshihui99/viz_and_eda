@@ -1,0 +1,255 @@
+---
+title: "exploratory data analysis: numeric summaries"
+author: "Shihui Peng"
+date: "2023-10-12"
+output: github_document
+---
+```{r, message=FALSE}
+library(tidyverse)
+
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
+```
+
+# Get the data for plotting 
+```{r}
+weather_df = 
+  rnoaa::meteo_pull_monitors(
+    c("USW00094728", "USW00022534", "USS0023B17S"),
+    var = c("PRCP", "TMIN", "TMAX"), 
+    date_min = "2021-01-01",
+    date_max = "2022-12-31") |>
+  mutate(
+    name = recode(
+      id, 
+      USW00094728 = "CentralPark_NY", 
+      USW00022534 = "Molokai_HI",
+      USS0023B17S = "Waterhole_WA"),
+    tmin = tmin / 10,
+    tmax = tmax / 10,
+    month = lubridate::floor_date(date, unit = 'month')) |>
+  select(name, id, everything())
+```
+* `month = lubridate::floor_date(data, unit = 'month')`: we use `floor_date()` in `lubridate` package to round down date and time values to a specified unit of time, such as days, months, or years. This function is particularly useful when you want to align dates and times to a common reference point or granularity. Here, recode the date var by month unit (eg. Jan 20 -> Jan 01).
+
+## initial numeric work
+```{r}
+weather_df |> 
+  ggplot(aes(x = prcp)) +
+  geom_histogram()
+```
+
+This is clearly a very skewed distribution; any formal analyses involving precipitation as a predictor or outcome might be influenced by this fact. It’s important to note that the vast majority of days have no precipitation. Meanwhile, examining the relatively few days have very high precipitation might be helpful.
+
+here are the big outliers:
+```{r}
+weather_df |> 
+  filter(prcp >= 1000)
+```
+it shows 3 outliers. when meeting outlier, check our ds and bg to understand why they happened.
+
+```{r}
+weather_df |> 
+  filter(tmax >= 20, tmax <= 30) |> 
+  ggplot(aes(x = tmin, y = tmax, color = name, shape = name)) +
+  geom_point()
+```
+
+Strange plots -- We can tell from the plot that maybe Molokai use diff monitor tyoe or maybe it use Fahrenheit while Waterhole use Celsius degree, etc. 
+
+* Thus, we should do stuff like above to notice these numeric feature before doing anything analytical.
+
+## Grouping w `group_by()`
+```{r}
+weather_df |> 
+  group_by(name, month)
+```
+* `group_by(name, month)`: group by name var and month var. this is invisible, and easy to be forgotten.
+* Because these (and other) functions will use grouping information if it exists, it is sometimes necessary to remove groups using `ungroup()`.
+
+## Counting w `summarise()`
+```{r}
+weather_df |> 
+  group_by(name, month) |> 
+  summarise(n_obs = n())
+
+weather_df |>
+  group_by(month) |>
+  summarize(
+    n_obs = n(),
+    n_days = n_distinct(date))
+```
+
+* 1st query
+  * `summarise(n_obs = n())` let r to count how many observations. since we use `group_by()` before, it will count by the group we just define.
+* 2nd query
+  * we can use summarize() to compute multiple summaries within each group. As an example, we count the number of observations in each month and the number of distinct/unique values of date in each month (`n_distinct(date)`).
+  
+```{r}
+weather_df |> 
+  count(name, name = 'n_obs')
+```
+
+* This is a less handy way to count compared to `group_by()`. similar to group_by(name), but less efficient.
+* `count()` is a useful tidyverse alternative to Base R’s table function. count() produces a dataframe you can use or manipulate directly. 
+
+## 2x2 table
+
+You might find yourself, someday, wanting to tabulate the frequency of a binary outcome across levels of a binary predictor. let’s say you want to look at the number of cold and not-cold days in Central Park and Waterhole.
+```{r}
+weather_df |> 
+  drop_na(tmax) |> 
+  mutate(
+    cold = case_when(
+      tmax <  5 ~ "cold",
+      tmax >= 5 ~ "not_cold",
+      TRUE      ~ ""
+  )) |> 
+  filter(name != "Molokai_HI") |> 
+  group_by(name, cold) |> 
+  summarize(count = n())
+```
+This is a “tidy” table, and it’s also a data frame. 
+
+You could re-organize into a more standard (non-tidy) 2x2 table using pivot_wider, or you could use `janitor::tabyl`:
+```{r}
+weather_df |> 
+  drop_na(tmax) |> 
+  mutate(cold = case_when(
+    tmax <  5 ~ "cold",
+    tmax >= 5 ~ "not_cold",
+    TRUE     ~ ""
+  )) |> 
+  filter(name != "Molokai_HI") |> 
+  janitor::tabyl(name, cold)
+```
+
+* `TRUE     ~ ""`: If neither of the above conditions is met (i.e., when tmax is neither less than 5 nor greater than or equal to 5), the cold column is set to an empty string (""), effectively marking it as blank.
+
+```{r}
+weather_df |> 
+  count(name, month) |> 
+  pivot_wider(
+    names_from = name,
+    values_from = n
+  )
+```
+
+* transfer to untidy ds to make it readable w `pivot_wider`.
+
+## General summarises
+```{r}
+weather_df |> 
+  group_by(name, month) |> 
+  summarise(
+    mean_tmax = mean(tmax, na.rm = TRUE),
+    median_tmax = median(tmax, na.rm = TRUE),
+    std_tmax = sd(tmax, na.rm = TRUE),
+  ) 
+
+weather_df |>
+  group_by(name, month) |>
+  summarize(across(tmin:prcp, mean))
+```
+
+* NA will be displayed in mean_tmax if we don't drop NA. we can solve in 2 ways:
+  * `drop_na(tmax)`
+  * put `na.rm = TRUE` inside `mean()` to remove NA. here, the default is FALSE
+* `sd()` for standard deviation, `median()` for median, `mean()` for mean.
+* If you want to summarize multiple columns using the same summary, the `across` function is helpful.
+
+```{r}
+weather_df |> 
+  group_by(name, month) |> 
+  summarise(mean_tmax = mean(tmax, na.rm = TRUE)) |> 
+  ggplot(aes(x = month, y = mean_tmax, color = name)) +
+  geom_point() +
+  geom_line()
+```
+
+Here i get a plot which i visually in right structure. But if I want to export this table and help ppl feel easy to read, i will use `pivot_wider()` to do it:
+
+```{r}
+weather_df |> 
+  group_by(name, month) |> 
+  summarise(mean_tmax = mean(tmax, na.rm = TRUE)) |> 
+  pivot_wider(
+    names_from = name,
+    values_from = mean_tmax
+  ) |> 
+  knitr::kable(digits = 2)
+```
+
+* The results of group_by() and summarize() are generally tidy, but presenting reader-friendly results for this kind of exploratory analysis often benefits from some un-tidying. For example, the table below shows month-by-month average max temperatures in a more human-readable format.
+* `knitr::kable()`: can structure the df. so in rmd, it will show a well format table
+
+## Grouped mutate
+```{r}
+weather_df |> 
+  group_by(name) |> 
+  mutate(
+    mean_tmax = mean(tmax, na.rm = TRUE),
+    centered_tmax = tmax - mean_tmax
+         ) |> 
+  ggplot(aes(x = date, y = centered_tmax, color = name)) +
+  geom_point()
+```
+
+Since i subtracted weather station specific mean from 3 weather station's tmax, the plot shows data hovering right around 0 in their respective setting.
+
+## Windows function
+
+The previous example used `mean()` to compute the mean **within each group**, which was then subtracted from the observed max temperature. *`mean()` takes n inputs and produces a single output*.
+
+Window functions, in contrast, *take n inputs and return n outputs*, and the outputs depend on all the inputs. There are several categories of window functions; you’re most likely to need *ranking functions and offsets*, which we illustrate below.
+
+### ranking things or put them into numeric order to find ~est record.
+
+```{r}
+weather_df |> 
+  group_by(name, month) |> 
+  mutate(
+    tmax_rank = min_rank(tmax)
+  )
+
+weather_df |> 
+  group_by(name, month) |> 
+  mutate(
+    tmax_rank = min_rank(tmax)
+  ) |> 
+  filter(tmax_rank < 2)
+```
+
+* **`min_rank(tmax)`**: use to rank tmax var, from lowest to highest. if wanting in reverse order, use **`min_rank(desc(tmax))`**, then it will go from highest to lowest.
+* we can use `filter(tmax_rank < 2)` to find the lowest (rank = 1) in each group.
+* In both of these, we’ve skipped a `mutate()` statement that would create a ranking variable, and gone straight to filtering based on the result. ('tmax_ranl =' can be skipped if you don't need ato create a new col for it)
+
+### lag
+
+Offsets, especially lags, are used to compare an observation to it’s previous value. This is useful, for example, to find the day-by-day change in max temperature within each station over the year, or how does yesterday's temp relate to today's temp:
+```{r}
+weather_df |> 
+  group_by(name) |> 
+  mutate(yesterday_tmax = lag(tmax, 3))
+```
+
+* `lag(tmax)` helps get temp of a day before. `lag(tmax, 3)` helps get temp of 3 days before.
+* if we left out `group_by(name)`, it might mix CentralPark_NY rows with Molokai_HI rows for the first 3 rows of Molokai (the next value of name var).
+
+```{r}
+weather_df |> 
+  group_by(name) |> 
+  mutate(temp_change = tmax - lag(tmax)) |> 
+  summarise(
+    sd_temp_change = sd(temp_change, na.rm = TRUE),
+    max_temp_change = max(temp_change, na.rm = TRUE)
+  )
+```
+This kind of variable might be used to quantify the day-by-day variability in max temperature, or to identify the largest one-day increase:
+
+## limitation
+
+`summarize()` can only be used with functions that **return a single-number summary**. This creates a ceiling, even if it is very high.

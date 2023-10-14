@@ -6,6 +6,7 @@ output: github_document
 ---
 ```{r, message=FALSE}
 library(tidyverse)
+library(patchwork)
 
 knitr::opts_chunk$set(
   fig.width = 6,
